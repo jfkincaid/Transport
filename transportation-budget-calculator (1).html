@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transportation Budget Calculator</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .grid-3 {
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .helper-text {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .info-box {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .info-box-blue {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .info-box-yellow {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .info-box-green {
+            background-color: #f0fdf4;
+            border-left: 4px solid #10b981;
+        }
+
+        .info-box-red {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .info-box-purple {
+            background-color: #faf5ff;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .info-box-gray {
+            background-color: #f9fafb;
+            border-left: 4px solid #6b7280;
+        }
+
+        .stat-card {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .stat-value-large {
+            font-size: 2.5rem;
+        }
+
+        .stat-helper {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .text-green { color: #10b981; }
+        .text-blue { color: #3b82f6; }
+        .text-yellow { color: #f59e0b; }
+        .text-red { color: #ef4444; }
+
+        .bg-blue-light { background-color: #eff6ff; }
+        .bg-green-light { background-color: #f0fdf4; }
+        .bg-yellow-light { background-color: #fffbeb; }
+        .bg-red-light { background-color: #fef2f2; }
+        .bg-purple-light { background-color: #faf5ff; }
+        .bg-gray-light { background-color: #f9fafb; }
+
+        .chart-container {
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        input[type="checkbox"] {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+
+        .step-list {
+            list-style: none;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 1.75rem;
+            height: 1.75rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-right: 1rem;
+        }
+
+        .step-content h4 {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .insight-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .insight-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .insight-box {
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+
+        .insight-box h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-box p {
+            font-size: 0.875rem;
+        }
+
+        .split-layout {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .split-layout {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .tax-breakdown {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .tax-breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .tax-breakdown-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            padding-top: 0.75rem;
+        }
+
+        .toggle-section {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // NC-specific data
+        const NC_SALES_TAX = 0.03;
+        const NC_TITLE_FEE = 56;
+        const NC_INSPECTION_FEE = 30;
+        const CHARLOTTE_AVG_GAS_PRICE = 3.15;
+
+        // Tax calculation constants
+        const STANDARD_DEDUCTION_2024 = 14600; // Single filer
+        const FICA_RATE = 0.0765; // Social Security 6.2% + Medicare 1.45%
+
+        // 2024 Federal tax brackets (single filer)
+        const FEDERAL_TAX_BRACKETS = [
+            { limit: 11600, rate: 0.10 },
+            { limit: 47150, rate: 0.12 },
+            { limit: 100525, rate: 0.22 },
+            { limit: 191950, rate: 0.24 },
+            { limit: 243725, rate: 0.32 },
+            { limit: 609350, rate: 0.35 },
+            { limit: Infinity, rate: 0.37 }
+        ];
+
+        // NC tax rate (flat rate as of 2024)
+        const NC_TAX_RATE = 0.0475;
+
+        // Vehicle presets
+        const VEHICLE_PRESETS = [
+            { name: "2018 Honda Civic (Used)", price: 18500, mpg: 35, fuelType: "regular", insuranceTier: "low", age: 6 },
+            { name: "2020 Toyota Camry (Used)", price: 24000, mpg: 32, fuelType: "regular", insuranceTier: "low", age: 4 },
+            { name: "2022 Ford F-150 (Used)", price: 38000, mpg: 22, fuelType: "regular", insuranceTier: "medium", age: 2 },
+            { name: "2021 Tesla Model 3", price: 35000, mpg: 130, fuelType: "electric", insuranceTier: "high", age: 3 },
+            { name: "Custom Vehicle", price: 0, mpg: 25, fuelType: "regular", insuranceTier: "medium", age: 5 }
+        ];
+
+        function TransportationBudgetApp() {
+            // Income settings
+            const [useGrossIncome, setUseGrossIncome] = useState(true);
+            const [grossAnnualIncome, setGrossAnnualIncome] = useState(42000);
+            const [calculatedMonthlyIncome, setCalculatedMonthlyIncome] = useState(0);
+            const [manualMonthlyIncome, setManualMonthlyIncome] = useState(3500);
+            
+            const [studentAge, setStudentAge] = useState(23);
+            const [selectedPreset, setSelectedPreset] = useState(0);
+            const [vehiclePrice, setVehiclePrice] = useState(18500);
+            const [vehicleMPG, setVehicleMPG] = useState(35);
+            const [fuelType, setFuelType] = useState("regular");
+            const [vehicleAge, setVehicleAge] = useState(6);
+            const [purchaseType, setPurchaseType] = useState("purchase");
+            const [downPayment, setDownPayment] = useState(2000);
+            const [loanTerm, setLoanTerm] = useState(60);
+            const [interestRate, setInterestRate] = useState(6.5);
+            const [leaseMonths, setLeaseMonths] = useState(36);
+            const [leasePayment, setLeasePayment] = useState(299);
+            const [insuranceTier, setInsuranceTier] = useState("low");
+            const [coverageType, setCoverageType] = useState("full");
+            const [annualMileage, setAnnualMileage] = useState(12000);
+            const [hasParking, setHasParking] = useState(false);
+            const [parkingCost, setParkingCost] = useState(0);
+            const [consideringAlternatives, setConsideringAlternatives] = useState(false);
+            const [transitPass, setTransitPass] = useState(88);
+            const [rideshareMonthly, setRideshareMonthly] = useState(150);
+            
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            // Calculate federal income tax using progressive brackets
+            const calculateFederalTax = (taxableIncome) => {
+                let tax = 0;
+                let previousLimit = 0;
+
+                for (const bracket of FEDERAL_TAX_BRACKETS) {
+                    if (taxableIncome <= previousLimit) break;
+                    
+                    const taxableInBracket = Math.min(taxableIncome, bracket.limit) - previousLimit;
+                    tax += taxableInBracket * bracket.rate;
+                    previousLimit = bracket.limit;
+                }
+
+                return tax;
+            };
+
+            // Calculate all taxes and net income
+            const calculateTaxes = (grossIncome) => {
+                // FICA (Social Security + Medicare) - calculated on gross income
+                const ficaTax = grossIncome * FICA_RATE;
+
+                // Federal income tax
+                const taxableIncome = Math.max(0, grossIncome - STANDARD_DEDUCTION_2024);
+                const federalTax = calculateFederalTax(taxableIncome);
+
+                // NC state tax (flat rate on taxable income after federal standard deduction)
+                const ncTax = taxableIncome * NC_TAX_RATE;
+
+                // Total taxes
+                const totalTaxes = ficaTax + federalTax + ncTax;
+
+                // Net income
+                const netIncome = grossIncome - totalTaxes;
+
+                return {
+                    grossIncome,
+                    ficaTax,
+                    federalTax,
+                    ncTax,
+                    totalTaxes,
+                    netAnnualIncome: netIncome,
+                    netMonthlyIncome: netIncome / 12,
+                    effectiveTaxRate: (totalTaxes / grossIncome) * 100
+                };
+            };
+
+            // Update calculated income when gross income changes
+            useEffect(() => {
+                if (useGrossIncome) {
+                    const taxes = calculateTaxes(grossAnnualIncome);
+                    setCalculatedMonthlyIncome(taxes.netMonthlyIncome);
+                }
+            }, [grossAnnualIncome, useGrossIncome]);
+
+            // Get the effective monthly income based on input method
+            const getEffectiveMonthlyIncome = () => {
+                return useGrossIncome ? calculatedMonthlyIncome : manualMonthlyIncome;
+            };
+
+            const monthlyIncome = getEffectiveMonthlyIncome();
+            const taxInfo = useGrossIncome ? calculateTaxes(grossAnnualIncome) : null;
+
+            useEffect(() => {
+                if (selectedPreset < VEHICLE_PRESETS.length - 1) {
+                    const preset = VEHICLE_PRESETS[selectedPreset];
+                    setVehiclePrice(preset.price);
+                    setVehicleMPG(preset.mpg);
+                    setFuelType(preset.fuelType);
+                    setInsuranceTier(preset.insuranceTier);
+                    setVehicleAge(preset.age);
+                    if (preset.price > 0) {
+                        setDownPayment(Math.round(preset.price * 0.1));
+                    }
+                }
+            }, [selectedPreset]);
+
+            const calculateMonthlyPayment = () => {
+                if (purchaseType === "lease") return leasePayment;
+                const principal = vehiclePrice - downPayment;
+                const monthlyRate = interestRate / 100 / 12;
+                const numPayments = loanTerm;
+                if (monthlyRate === 0) return principal / numPayments;
+                return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+            };
+
+            const calculateMonthlyInsurance = () => {
+                let baseRate = 150;
+                if (studentAge < 20) baseRate *= 2.2;
+                else if (studentAge < 25) baseRate *= 1.5;
+                else if (studentAge < 30) baseRate *= 1.2;
+                if (insuranceTier === "high") baseRate *= 1.4;
+                else if (insuranceTier === "medium") baseRate *= 1.15;
+                if (coverageType === "liability") baseRate *= 0.5;
+                return baseRate;
+            };
+
+            const calculateAnnualFuelCost = () => {
+                if (fuelType === "electric") {
+                    return (annualMileage / 100) * 30 * 0.12;
+                }
+                const gallonsUsed = annualMileage / vehicleMPG;
+                let pricePerGallon = CHARLOTTE_AVG_GAS_PRICE;
+                if (fuelType === "premium") pricePerGallon += 0.50;
+                if (fuelType === "diesel") pricePerGallon += 0.30;
+                return gallonsUsed * pricePerGallon;
+            };
+
+            const calculateMonthlyMaintenance = () => {
+                let annualCost = 240;
+                annualCost += 60;
+                if (vehicleAge > 5) annualCost += 500;
+                else if (vehicleAge > 3) annualCost += 300;
+                else annualCost += 150;
+                annualCost += 200;
+                annualCost += 600;
+                return annualCost / 12;
+            };
+
+            const calculateUpfrontCosts = () => {
+                if (purchaseType === "lease") return downPayment;
+                return downPayment + (vehiclePrice * NC_SALES_TAX) + NC_TITLE_FEE + 350 + 80;
+            };
+
+            const calculateTotalMonthlyCost = () => {
+                return calculateMonthlyPayment() + calculateMonthlyInsurance() + 
+                       (calculateAnnualFuelCost() / 12) + calculateMonthlyMaintenance() + 
+                       (NC_INSPECTION_FEE / 12) + (hasParking ? parkingCost : 0);
+            };
+
+            const totalMonthly = calculateTotalMonthlyCost();
+            const budgetPct = (totalMonthly / monthlyIncome * 100).toFixed(1);
+            const upfrontCost = calculateUpfrontCosts();
+            const alternativeCost = transitPass + rideshareMonthly;
+
+            const getBudgetHealth = () => {
+                const pct = parseFloat(budgetPct);
+                if (pct < 15) return { color: 'text-green', message: 'Excellent! Well within budget.' };
+                if (pct < 20) return { color: 'text-blue', message: 'Good. Within recommended range.' };
+                if (pct < 25) return { color: 'text-yellow', message: 'Caution. Approaching budget limit.' };
+                return { color: 'text-red', message: 'Warning! Exceeds recommended budget.' };
+            };
+
+            useEffect(() => {
+                if (chartRef.current) {
+                    if (chartInstance.current) chartInstance.current.destroy();
+                    const ctx = chartRef.current.getContext('2d');
+                    const payment = calculateMonthlyPayment();
+                    const insurance = calculateMonthlyInsurance();
+                    const fuel = calculateAnnualFuelCost() / 12;
+                    const maintenance = calculateMonthlyMaintenance();
+                    const parking = hasParking ? parkingCost : 0;
+                    const inspection = NC_INSPECTION_FEE / 12;
+
+                    chartInstance.current = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Payment', 'Insurance', 'Fuel', 'Maintenance', 'Parking', 'Inspection'],
+                            datasets: [{
+                                data: [payment, insurance, fuel, maintenance, parking, inspection],
+                                backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#6B7280'],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label + ': $' + context.parsed.toFixed(2);
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const pct = ((context.parsed / total) * 100).toFixed(1);
+                                            return label + ' (' + pct + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+            }, [vehiclePrice, downPayment, loanTerm, interestRate, purchaseType, leasePayment,
+                studentAge, insuranceTier, coverageType, annualMileage, fuelType, vehicleMPG,
+                vehicleAge, hasParking, parkingCost]);
+
+            const budgetHealth = getBudgetHealth();
+
+            return (
+                <div className="container">
+                    <div className="card">
+                        <h1>Transportation Budget Calculator</h1>
+                        <p className="subtitle">Plan your transportation costs to make informed financial decisions</p>
+                    </div>
+
+                    <div className="card">
+                        <h2>Your Income Information</h2>
+                        
+                        <div className="toggle-section">
+                            <div className="button-group">
+                                <button 
+                                    className={useGrossIncome ? 'btn-primary' : 'btn-secondary'}
+                                    onClick={() => setUseGrossIncome(true)}
+                                >
+                                    Enter Gross Annual Income
+                                </button>
+                                <button 
+                                    className={!useGrossIncome ? 'btn-primary' : 'btn-secondary'}
+                                    onClick={() => setUseGrossIncome(false)}
+                                >
+                                    Enter Net Monthly Income
+                                </button>
+                            </div>
+                            <p className="helper-text" style={{textAlign: 'center'}}>
+                                {useGrossIncome 
+                                    ? 'We\'ll calculate your take-home pay after federal and NC state taxes'
+                                    : 'Enter your monthly income after all taxes have been deducted'}
+                            </p>
+                        </div>
+
+                        {useGrossIncome ? (
+                            <div>
+                                <div className="form-group">
+                                    <label>Gross Annual Income (before taxes)</label>
+                                    <input 
+                                        type="number" 
+                                        value={grossAnnualIncome} 
+                                        onChange={(e) => setGrossAnnualIncome(parseFloat(e.target.value) || 0)} 
+                                    />
+                                    <p className="helper-text">Your total salary before any deductions</p>
+                                </div>
+
+                                {taxInfo && (
+                                    <div className="tax-breakdown">
+                                        <h3 style={{marginBottom: '1rem'}}>Tax Breakdown (Single, No Dependents)</h3>
+                                        <div className="tax-breakdown-row">
+                                            <span>Gross Annual Income:</span>
+                                            <strong>${taxInfo.grossIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                                        </div>
+                                        <div className="tax-breakdown-row">
+                                            <span>Federal Income Tax:</span>
+                                            <span>-${taxInfo.federalTax.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                        </div>
+                                        <div className="tax-breakdown-row">
+                                            <span>NC State Tax (4.75%):</span>
+                                            <span>-${taxInfo.ncTax.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                        </div>
+                                        <div className="tax-breakdown-row">
+                                            <span>FICA (Social Security + Medicare):</span>
+                                            <span>-${taxInfo.ficaTax.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                        </div>
+                                        <div className="tax-breakdown-row">
+                                            <span>Total Taxes ({taxInfo.effectiveTaxRate.toFixed(1)}%):</span>
+                                            <span className="text-red">-${taxInfo.totalTaxes.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                        </div>
+                                        <div className="tax-breakdown-row">
+                                            <span>Net Annual Income:</span>
+                                            <strong className="text-green">${taxInfo.netAnnualIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                                        </div>
+                                        <div className="tax-breakdown-row">
+                                            <span>Net Monthly Income:</span>
+                                            <strong className="text-blue" style={{fontSize: '1.25rem'}}>${taxInfo.netMonthlyIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="form-group">
+                                <label>Monthly Income (after taxes)</label>
+                                <input 
+                                    type="number" 
+                                    value={manualMonthlyIncome} 
+                                    onChange={(e) => setManualMonthlyIncome(parseFloat(e.target.value) || 0)} 
+                                />
+                                <p className="helper-text">Your take-home pay each month after all deductions</p>
+                            </div>
+                        )}
+
+                        <div className="form-group" style={{marginTop: '1rem'}}>
+                            <label>Your Age</label>
+                            <input 
+                                type="number" 
+                                value={studentAge} 
+                                onChange={(e) => setStudentAge(parseInt(e.target.value) || 18)} 
+                            />
+                            <p className="helper-text">Age affects insurance rates significantly</p>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2>Choose Your Vehicle</h2>
+                        <div className="form-group">
+                            <label>Quick Start (or select Custom to enter your own)</label>
+                            <select value={selectedPreset} onChange={(e) => setSelectedPreset(parseInt(e.target.value))}>
+                                {VEHICLE_PRESETS.map((preset, idx) => (
+                                    <option key={idx} value={idx}>{preset.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="grid grid-3">
+                            <div className="form-group">
+                                <label>Vehicle Price</label>
+                                <input type="number" value={vehiclePrice} 
+                                    onChange={(e) => setVehiclePrice(parseFloat(e.target.value) || 0)} />
+                            </div>
+                            <div className="form-group">
+                                <label>{fuelType === 'electric' ? 'MPGe' : 'MPG'} (Combined)</label>
+                                <input type="number" value={vehicleMPG} 
+                                    onChange={(e) => setVehicleMPG(parseFloat(e.target.value) || 1)} />
+                            </div>
+                            <div className="form-group">
+                                <label>Vehicle Age (years)</label>
+                                <input type="number" value={vehicleAge} 
+                                    onChange={(e) => setVehicleAge(parseInt(e.target.value) || 0)} />
+                            </div>
+                        </div>
+                        <div className="grid grid-2">
+                            <div className="form-group">
+                                <label>Fuel Type</label>
+                                <select value={fuelType} onChange={(e) => setFuelType(e.target.value)}>
+                                    <option value="regular">Regular Gas</option>
+                                    <option value="premium">Premium Gas</option>
+                                    <option value="diesel">Diesel</option>
+                                    <option value="electric">Electric</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Annual Mileage</label>
+                                <input type="number" value={annualMileage} 
+                                    onChange={(e) => setAnnualMileage(parseInt(e.target.value) || 0)} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2>Financing Details</h2>
+                        <div className="button-group">
+                            <button className={purchaseType === 'purchase' ? 'btn-primary' : 'btn-secondary'}
+                                onClick={() => setPurchaseType('purchase')}>Purchase</button>
+                            <button className={purchaseType === 'lease' ? 'btn-primary' : 'btn-secondary'}
+                                onClick={() => setPurchaseType('lease')}>Lease</button>
+                        </div>
+                        {purchaseType === 'purchase' ? (
+                            <div className="grid grid-3">
+                                <div className="form-group">
+                                    <label>Down Payment</label>
+                                    <input type="number" value={downPayment} 
+                                        onChange={(e) => setDownPayment(parseFloat(e.target.value) || 0)} />
+                                    <p className="helper-text">{((downPayment / vehiclePrice) * 100).toFixed(1)}% of price</p>
+                                </div>
+                                <div className="form-group">
+                                    <label>Loan Term (months)</label>
+                                    <select value={loanTerm} onChange={(e) => setLoanTerm(parseInt(e.target.value))}>
+                                        <option value={36}>36 months (3 years)</option>
+                                        <option value={48}>48 months (4 years)</option>
+                                        <option value={60}>60 months (5 years)</option>
+                                        <option value={72}>72 months (6 years)</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Interest Rate (APR %)</label>
+                                    <input type="number" step="0.1" value={interestRate} 
+                                        onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)} />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-3">
+                                <div className="form-group">
+                                    <label>Down Payment</label>
+                                    <input type="number" value={downPayment} 
+                                        onChange={(e) => setDownPayment(parseFloat(e.target.value) || 0)} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Lease Term (months)</label>
+                                    <select value={leaseMonths} onChange={(e) => setLeaseMonths(parseInt(e.target.value))}>
+                                        <option value={24}>24 months (2 years)</option>
+                                        <option value={36}>36 months (3 years)</option>
+                                        <option value={48}>48 months (4 years)</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Monthly Lease Payment</label>
+                                    <input type="number" value={leasePayment} 
+                                        onChange={(e) => setLeasePayment(parseFloat(e.target.value) || 0)} />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="card">
+                        <h2>Insurance</h2>
+                        <div className="grid grid-2">
+                            <div className="form-group">
+                                <label>Vehicle Insurance Tier</label>
+                                <select value={insuranceTier} onChange={(e) => setInsuranceTier(e.target.value)}>
+                                    <option value="low">Low (Economy/Reliable cars)</option>
+                                    <option value="medium">Medium (Mid-size/SUVs)</option>
+                                    <option value="high">High (Luxury/Sports/New)</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Coverage Type</label>
+                                <select value={coverageType} onChange={(e) => setCoverageType(e.target.value)}>
+                                    <option value="liability">Liability Only</option>
+                                    <option value="full">Full Coverage (Comprehensive + Collision)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="info-box info-box-blue">
+                            <strong>Estimated Monthly Insurance:</strong> ${calculateMonthlyInsurance().toFixed(2)}
+                            {studentAge < 25 && <p style={{marginTop: '0.5rem'}}>💡 Young drivers typically pay higher insurance rates</p>}
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2>Additional Costs</h2>
+                        <div className="checkbox-group">
+                            <input type="checkbox" id="parking" checked={hasParking} 
+                                onChange={(e) => setHasParking(e.target.checked)} />
+                            <label htmlFor="parking">I need to pay for parking</label>
+                        </div>
+                        {hasParking && (
+                            <div className="form-group">
+                                <label>Monthly Parking Cost</label>
+                                <input type="number" value={parkingCost} 
+                                    onChange={(e) => setParkingCost(parseFloat(e.target.value) || 0)} />
+                            </div>
+                        )}
+                        <div className="info-box info-box-gray">
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
+                                <span>Estimated Fuel Cost/Month:</span>
+                                <strong>${(calculateAnnualFuelCost() / 12).toFixed(2)}</strong>
+                            </div>
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
+                                <span>Estimated Maintenance/Month:</span>
+                                <strong>${calculateMonthlyMaintenance().toFixed(2)}</strong>
+                            </div>
+                            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                <span>Annual Inspection (amortized):</span>
+                                <strong>${(NC_INSPECTION_FEE / 12).toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+                            <h2 style={{margin: 0}}>Consider Alternatives?</h2>
+                            <button className={consideringAlternatives ? 'btn-success' : 'btn-secondary'}
+                                onClick={() => setConsideringAlternatives(!consideringAlternatives)}>
+                                {consideringAlternatives ? 'Comparing' : 'Compare'}
+                            </button>
+                        </div>
+                        {consideringAlternatives && (
+                            <div>
+                                <p className="subtitle">See how public transit and occasional rideshare compares to owning a vehicle</p>
+                                <div className="grid grid-2">
+                                    <div className="form-group">
+                                        <label>Monthly Transit Pass (CATS)</label>
+                                        <input type="number" value={transitPass} 
+                                            onChange={(e) => setTransitPass(parseFloat(e.target.value) || 0)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Monthly Rideshare Budget</label>
+                                        <input type="number" value={rideshareMonthly} 
+                                            onChange={(e) => setRideshareMonthly(parseFloat(e.target.value) || 0)} />
+                                    </div>
+                                </div>
+                                <div className="info-box info-box-yellow">
+                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
+                                        <strong>Alternative Transportation Total:</strong>
+                                        <strong style={{fontSize: '1.25rem'}}>${alternativeCost.toFixed(2)}/month</strong>
+                                    </div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <span>Savings vs. Car Ownership:</span>
+                                        <strong className={totalMonthly > alternativeCost ? 'text-green' : 'text-red'}>
+                                            {totalMonthly > alternativeCost ? '-' : '+'}${Math.abs(totalMonthly - alternativeCost).toFixed(2)}/month
+                                        </strong>
+                                    </div>
+                                    {totalMonthly > alternativeCost && (
+                                        <p className="helper-text" style={{marginTop: '0.5rem'}}>
+                                            💡 You could save ${((totalMonthly - alternativeCost) * 12).toFixed(2)} per year without a car!
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="split-layout">
+                        <div className="card">
+                            <h2>Monthly Cost Breakdown</h2>
+                            <div className="chart-container">
+                                <canvas ref={chartRef}></canvas>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <h2>Budget Summary</h2>
+                            <div className="stat-card bg-blue-light">
+                                <div className="stat-label">Upfront Costs</div>
+                                <div className="stat-value">${upfrontCost.toFixed(2)}</div>
+                                <div className="stat-helper">
+                                    {purchaseType === 'purchase' ? 'Down payment + taxes + fees' : 'Lease down payment'}
+                                </div>
+                            </div>
+                            <div className="stat-card bg-green-light">
+                                <div className="stat-label">Total Monthly Cost</div>
+                                <div className="stat-value stat-value-large">${totalMonthly.toFixed(2)}</div>
+                                <div className="stat-helper">All transportation expenses</div>
+                            </div>
+                            <div className={`stat-card ${
+                                parseFloat(budgetPct) < 20 ? 'bg-green-light' : 
+                                parseFloat(budgetPct) < 25 ? 'bg-yellow-light' : 'bg-red-light'
+                            }`}>
+                                <div className="stat-label">Budget Percentage</div>
+                                <div className={`stat-value stat-value-large ${budgetHealth.color}`}>
+                                    {budgetPct}%
+                                </div>
+                                <div style={{marginTop: '0.5rem', fontWeight: 500}}>{budgetHealth.message}</div>
+                                <div className="stat-helper">Recommended: 15-20% of income</div>
+                            </div>
+                            {purchaseType === 'purchase' && (
+                                <div className="stat-card bg-purple-light">
+                                    <div className="stat-label">Total Interest Paid</div>
+                                    <div className="stat-value">
+                                        ${((calculateMonthlyPayment() * loanTerm) - (vehiclePrice - downPayment)).toFixed(2)}
+                                    </div>
+                                    <div className="stat-helper">Over {loanTerm} months</div>
+                                </div>
+                            )}
+                            <div className="stat-card bg-gray-light">
+                                <div className="stat-label">Annual Transportation Cost</div>
+                                <div className="stat-value">${(totalMonthly * 12).toFixed(2)}</div>
+                                <div className="stat-helper">${totalMonthly.toFixed(2)} × 12 months</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2>💡 Key Insights</h2>
+                        <div className="insight-grid">
+                            <div className="insight-box info-box-blue">
+                                <h3>True Cost of Ownership</h3>
+                                <p>Your monthly payment is only ${calculateMonthlyPayment().toFixed(2)}, but the total monthly cost 
+                                is ${totalMonthly.toFixed(2)} when including insurance, fuel, maintenance, and other expenses.</p>
+                            </div>
+                            {studentAge < 25 && (
+                                <div className="insight-box info-box-yellow">
+                                    <h3>Age Impact on Insurance</h3>
+                                    <p>As a driver under 25, you're paying approximately ${(calculateMonthlyInsurance() - 150).toFixed(2)} 
+                                    more per month than an older driver. Your rates will decrease as you age and maintain a clean record.</p>
+                                </div>
+                            )}
+                            {parseFloat(budgetPct) > 20 && (
+                                <div className="insight-box info-box-red">
+                                    <h3>Budget Warning</h3>
+                                    <p>Financial experts recommend spending no more than 15-20% of your income on transportation. 
+                                    Consider a less expensive vehicle or alternative transportation options.</p>
+                                </div>
+                            )}
+                            {fuelType === 'electric' && (
+                                <div className="insight-box info-box-green">
+                                    <h3>Electric Vehicle Savings</h3>
+                                    <p>You'll save approximately ${((annualMileage / 25 * CHARLOTTE_AVG_GAS_PRICE) - calculateAnnualFuelCost()).toFixed(2)} 
+                                    per year on fuel compared to a 25 MPG gas vehicle.</p>
+                                </div>
+                            )}
+                            {purchaseType === 'lease' && (
+                                <div className="insight-box info-box-purple">
+                                    <h3>Leasing Considerations</h3>
+                                    <p>Leasing offers lower monthly payments but you won't own the vehicle. 
+                                    After {leaseMonths} months, you'll have paid ${(leasePayment * leaseMonths + downPayment).toFixed(2)} with no equity.</p>
+                                </div>
+                            )}
+                            <div className="insight-box info-box-gray">
+                                <h3>Maintenance Reality</h3>
+                                <p>Don't forget about maintenance! You'll need approximately ${calculateMonthlyMaintenance().toFixed(2)}/month 
+                                for oil changes, tire rotations, and unexpected repairs.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2>📋 Next Steps</h2>
+                        <ul className="step-list">
+                            <li className="step-item">
+                                <div className="step-number">1</div>
+                                <div className="step-content">
+                                    <h4>Research Actual Vehicles</h4>
+                                    <p>Search Charlotte-area listings on AutoTrader, Cars.com, or Craigslist to verify your budget assumptions</p>
+                                </div>
+                            </li>
+                            <li className="step-item">
+                                <div className="step-number">2</div>
+                                <div className="step-content">
+                                    <h4>Get Insurance Quotes</h4>
+                                    <p>Contact 2-3 insurance providers for actual quotes based on your age, location, and vehicle choice</p>
+                                </div>
+                            </li>
+                            <li className="step-item">
+                                <div className="step-number">3</div>
+                                <div className="step-content">
+                                    <h4>Consider Your Commute</h4>
+                                    <p>Calculate actual mileage to work/school and determine if public transit (CATS) could meet your needs</p>
+                                </div>
+                            </li>
+                            <li className="step-item">
+                                <div className="step-number">4</div>
+                                <div className="step-content">
+                                    <h4>Build Your Emergency Fund</h4>
+                                    <p>Set aside $1,000-2,000 before purchasing a vehicle to cover unexpected repairs or emergencies</p>
+                                </div>
+                            </li>
+                            <li className="step-item">
+                                <div className="step-number">5</div>
+                                <div className="step-content">
+                                    <h4>Review Your Full Budget</h4>
+                                    <p>Make sure transportation costs fit within your overall budget including housing, food, savings, and discretionary spending</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="footer">
+                        <p>Transportation Budget Calculator | Aligned with NC EPF Standards</p>
+                        <p>Data reflects Charlotte, NC area estimates and 2024 tax rates</p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TransportationBudgetApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
